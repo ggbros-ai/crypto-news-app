@@ -5,6 +5,7 @@ import asyncio
 from news_collector import NewsCollector
 import threading
 import time
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -151,13 +152,14 @@ def translate_pending_news():
             'error': str(e)
         }), 500
 
-if __name__ == '__main__':
-    # 백그라운드 뉴스 수집 스레드 시작
+# 프로덕션 환경에서 백그라운드 스레드 시작
+if not os.environ.get('WERKZEUG_RUN_MAIN'):
     collection_thread = threading.Thread(target=background_news_collection, daemon=True)
     collection_thread.start()
-    
+
+if __name__ == '__main__':
     print("뉴스 수집 웹 서버 시작...")
     print("http://localhost:5000 에서 접속 가능")
     
-    # Flask 서버 실행
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Flask 서버 실행 (개발 환경에서만)
+    app.run(host='0.0.0.0', port=5000, debug=False)
