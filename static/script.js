@@ -121,28 +121,15 @@ class NewsManager {
             const timeAgo = this.getTimeAgo(news.published);
             const isNew = index < 3; // 최신 3개는 새로운 뉴스로 표시
             
-            // 영문제목과 한글제목이 다를 경우에만 영문제목 표시
-            const showOriginalTitle = news.title && news.translated_title && 
-                                     news.title.trim() !== news.translated_title.trim();
-            
             return `
                 <div class="news-item ${isNew ? 'new' : ''}" onclick="newsManager.openNewsLink('${news.link}')">
                     <div class="news-header">
+                        <!-- 한글제목(번역제목) -->
+                        <h3 class="news-title">${this.escapeHtml(news.translated_title || news.title)}</h3>
                         <span class="news-time">${timeAgo}</span>
                     </div>
-                    <!-- 한글제목(번역제목) - 크게 표시 -->
-                    <h3 class="news-title">${this.escapeHtml(news.translated_title || news.title)}</h3>
-                    <!-- 영문제목(원본) - 한글제목과 다를 경우에만 표시 -->
-                    ${showOriginalTitle ? `
-                        <div class="news-original-title">${this.escapeHtml(news.title)}</div>
-                    ` : ''}
-                    ${news.translated_description || news.description ? `
-                        <p class="news-description">${this.escapeHtml(news.translated_description || news.description)}</p>
-                    ` : ''}
-                    <div class="news-source">
-                        <i class="fas fa-rss"></i>
-                        ${news.source}
-                    </div>
+                    <!-- 영문제목(원본) -->
+                    <div class="news-original-title">${this.escapeHtml(news.title)}</div>
                 </div>
             `;
         }).join('');

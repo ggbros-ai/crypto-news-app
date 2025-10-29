@@ -6,27 +6,21 @@
 
 body {
     font-family: 'Noto Sans KR', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #1e1e1e;
+    color: #e8e8e8;
     min-height: 100vh;
-    color: #333;
+    line-height: 1.4;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
-    position: relative;
+    padding: 2px;
 }
 
-/* 헤더 스타일 */
+/* 헤더 스타일 - 최소화 */
 .header {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 20px 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 5px;
 }
 
 .header-content {
@@ -36,70 +30,43 @@ body {
 }
 
 .header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #2d3748;
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .header h1 i {
-    color: #667eea;
+    color: #888;
 }
 
 .current-time {
-    font-size: 18px;
-    font-weight: 500;
-    color: #4a5568;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 14px;
+    color: #666;
 }
 
 /* 메인 컨텐츠 */
 .main-content {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .news-container {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 25px;
+    background: #1a1a1a;
     min-height: 400px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* 로딩 인디케이터 */
-.loading-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    padding: 60px 20px;
-    color: #718096;
-    font-size: 16px;
-}
-
-.loading-indicator i {
-    color: #667eea;
-    font-size: 24px;
-}
-
-/* 뉴스 아이템 스타일 - 간결한 선으로만 구분 */
+/* 뉴스 아이템 스타일 - 최소한의 디자인 */
 .news-item {
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 20px 15px;
+    border-bottom: 1px solid #333;
+    padding: 4px 0;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .news-item:hover {
-    background-color: #f8fafc;
+    background-color: #252525;
 }
 
 .news-item:last-child {
@@ -107,13 +74,13 @@ body {
 }
 
 .news-item.new {
-    animation: slideInRight 0.5s ease;
+    animation: slideInRight 0.3s ease;
 }
 
 @keyframes slideInRight {
     from {
         opacity: 0;
-        transform: translateX(50px);
+        transform: translateX(20px);
     }
     to {
         opacity: 1;
@@ -121,107 +88,103 @@ body {
     }
 }
 
+/* 뉴스 헤더 - 제목과 시간을 같은 줄에 */
 .news-header {
-    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
 }
 
 /* 한글제목(번역제목) - 크게 표시 */
 .news-title {
     font-size: 18px;
-    font-weight: 600;
-    color: #2d3748;
-    line-height: 1.4;
-    margin-bottom: 6px;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1.3;
+    margin: 0;
+    flex: 1;
+}
+
+/* 시간 표시 */
+.news-time {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
 }
 
 /* 영문제목(원본) - 아래줄에 작게 표시 */
 .news-original-title {
-    font-size: 14px;
-    color: #718096;
-    line-height: 1.3;
+    font-size: 13px;
+    color: #888;
+    line-height: 1.2;
     font-weight: 400;
 }
 
-.news-time {
-    font-size: 12px;
-    color: #a0aec0;
-    float: right;
-}
-
-.news-description {
-    font-size: 14px;
-    color: #4a5568;
-    line-height: 1.5;
-    margin-top: 10px;
-}
-
-.news-source {
-    font-size: 12px;
-    color: #a0aec0;
-    margin-top: 10px;
+/* 로딩 인디케이터 */
+.loading-indicator {
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    gap: 10px;
+    padding: 60px 20px;
+    color: #666;
+    font-size: 14px;
 }
 
-/* 통계 패널 */
+.loading-indicator i {
+    color: #888;
+    font-size: 20px;
+}
+
+/* 통계 패널 - 최소화 */
 .stats-panel {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     justify-content: space-around;
+    padding: 15px 0;
 }
 
 .stat-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #4a5568;
+    gap: 6px;
+    font-size: 13px;
+    color: #666;
 }
 
 .stat-item i {
-    color: #667eea;
+    color: #888;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .container {
-        padding: 15px;
+        padding: 10px;
     }
     
     .header-content {
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
         text-align: center;
     }
     
     .header h1 {
-        font-size: 24px;
-    }
-    
-    .news-container {
-        padding: 20px;
+        font-size: 20px;
     }
     
     .stats-panel {
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
     }
 }
 
-/* 유튜브 송출용 최적화 */
 @media (max-width: 480px) {
     .header h1 {
-        font-size: 20px;
+        font-size: 18px;
     }
     
     .news-item {
-        padding: 15px;
+        padding: 10px 0;
     }
     
     .news-title {
@@ -229,55 +192,50 @@ body {
     }
     
     .news-original-title {
-        font-size: 13px;
-    }
-    
-    .news-description {
-        font-size: 13px;
+        font-size: 12px;
     }
 }
 
-/* 스크롤바 스타일 */
+/* 스크롤바 스타일 - 어두운 테마 */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+    background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 10px;
+    background: #333;
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    background: #444;
 }
 
-/* 추가 스타일 */
+/* 에러 및 메시지 스타일 */
 .no-news-message, .error-message {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 60px 20px;
-    color: #718096;
+    color: #666;
     text-align: center;
 }
 
 .no-news-message i, .error-message i {
-    font-size: 48px;
-    margin-bottom: 20px;
-    color: #cbd5e0;
+    font-size: 40px;
+    margin-bottom: 15px;
+    color: #444;
 }
 
 .no-news-message p, .error-message p {
-    margin: 5px 0;
-    font-size: 16px;
+    margin: 3px 0;
+    font-size: 14px;
 }
 
 .error-message i {
-    color: #f56565;
+    color: #666;
 }
