@@ -6,6 +6,10 @@ from news_collector import NewsCollector
 import threading
 import time
 import os
+from dotenv import load_dotenv
+
+# 환경 변수 로드
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -23,18 +27,18 @@ def background_news_collection():
         try:
             print("뉴스 수집 시작...")
             
-            # 뉴스 수집
-            news_items = news_collector.collect_crypto_news()
+            # 크립토 뉴스와 일반 뉴스 모두 수집
+            all_news = news_collector.collect_all_news()
             
-            if news_items:
+            if all_news['crypto'] or all_news['general']:
                 # 번역되지 않은 뉴스만 번역 처리
-                translated_news = news_collector.process_untranslated_news(5)
+                translated_news = news_collector.process_untranslated_news(10)
                 
                 # 최신 뉴스 업데이트 (DB에서 가져오기)
-                latest_news = news_collector.get_latest_translated_news(20)
+                latest_news = news_collector.db.get_news_by_categories(5, 5)
                 last_update_time = time.strftime('%Y-%m-%d %H:%M:%S')
                 
-                print(f"{len(latest_news)}개의 뉴스가 업데이트되었습니다.")
+                print(f"크립토 뉴스 {len(all_news['crypto'])}개, 일반 뉴스 {len(all_news['general'])}개가 업데이트되었습니다.")
             else:
                 print("새로운 뉴스가 없습니다.")
                 
@@ -51,15 +55,45 @@ def index():
 
 @app.route('/api/news')
 def get_news():
-    """최신 뉴스 API"""
+    """카테고리별 최신 뉴스 API"""
     try:
-        # DB에서 최신 뉴스 가져오기
-        latest_news = news_collector.get_latest_translated_news(20)
+        # DB에서 카테고리별 최신 뉴스 가져오기
+        categorized_news = news_collector.db.get_news_by_categories(5, 5)
         
         response_data = {
             'success': True,
-            'news': latest_news,
-            'count': len(latest_news),
+            'crypto_news': categorized_news['crypto'],
+            'general_news': categorized_news['general'],
+            'crypto_count': len(categorized_news['crypto']),
+            'general_count': len(categorized_news['general']),
+            'total_count': len(categorized_news['crypto']) + len(categorized_news['general']),
+            'last_update': last_update_time
+        }
+        return jsonify(response_data)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/news/<category>')
+def get_news_by_category(category):
+    """특정 카테고리 뉴스 API"""
+    try:
+        if category not in ['crypto', 'general']:
+            return jsonify({
+                'success': False,
+                'error': '유효하지 않은 카테고리입니다.'
+            }), 400
+        
+        # 해당 카테고리 뉴스 가져오기
+        news_list = news_collector.db.get_latest_news_by_category(category, 10)
+        
+        response_data = {
+            'success': True,
+            'category': category,
+            'news': news_list,
+            'count': len(news_list),
             'last_update': last_update_time
         }
         return jsonify(response_data)

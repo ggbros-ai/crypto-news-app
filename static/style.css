@@ -47,6 +47,31 @@ body {
     color: #666;
 }
 
+/* 뉴스 섹션 스타일 */
+.news-section {
+    margin-bottom: 0px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* margin-bottom: 8px; */
+    padding: 0 5px;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+.section-header i {
+    font-size: 16px;
+    color: #888;
+}
+
 /* 메인 컨텐츠 */
 .main-content {
     margin-bottom: 20px;
@@ -54,7 +79,7 @@ body {
 
 .news-container {
     background: #1a1a1a;
-    min-height: 400px;
+    /* min-height: 200px; */
 }
 
 /* 뉴스 아이템 스타일 - 최소한의 디자인 */
@@ -75,6 +100,38 @@ body {
 
 .news-item.new {
     animation: slideInRight 0.3s ease;
+}
+
+/* 카테고리별 뉴스 스타일 */
+.news-item.crypto {
+    border-left: 3px solid #f7931a; /* 비트코인 오렌지색 */
+    padding-left: 8px;
+}
+
+.news-item.general {
+    border-left: 3px solid #2196f3; /* 파란색 */
+    padding-left: 8px;
+}
+
+/* 카테고리 라벨 */
+.news-category {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 8px;
+    text-transform: uppercase;
+}
+
+.news-category.crypto {
+    background: #f7931a;
+    color: #000;
+}
+
+.news-category.general {
+    background: #2196f3;
+    color: #fff;
 }
 
 @keyframes slideInRight {

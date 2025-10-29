@@ -1,8 +1,9 @@
 // 뉴스 관리 클래스
 class NewsManager {
     constructor() {
-        this.newsList = [];
-        this.maxNewsCount = 50; // 최대 뉴스 개수
+        this.cryptoNewsList = [];
+        this.generalNewsList = [];
+        this.maxNewsCount = 5; // 카테고리별 최대 뉴스 개수
         this.updateInterval = 30000; // 30초마다 업데이트
         this.sentNewsLinks = new Set(); // 중복 방지를 위한 링크 저장
         
@@ -49,31 +50,21 @@ class NewsManager {
         try {
             this.showLoading(true);
             
-            // 뉴스 수집 (백엔드에서 이미 번역된 뉴스를 받아옴)
-            const newNews = await this.fetchNewsFromCollector();
+            // 카테고리별 뉴스 수집
+            const newsData = await this.fetchNewsFromCollector();
             
-            if (newNews && newNews.length > 0) {
-                // 기존 뉴스 리스트 초기화하고 백엔드에서 받은 최신 뉴스로 교체
-                this.newsList = newNews;
-                
-                // 중복 체크를 위한 링크 저장
-                newNews.forEach(news => {
-                    this.sentNewsLinks.add(news.link);
-                });
-                
-                // 최대 개수 유지
-                if (this.newsList.length > this.maxNewsCount) {
-                    this.newsList = this.newsList.slice(0, this.maxNewsCount);
-                }
+            if (newsData) {
+                this.cryptoNewsList = newsData.crypto_news || [];
+                this.generalNewsList = newsData.general_news || [];
                 
                 // 화면 업데이트
                 this.displayNews();
                 this.updateStats();
                 
-                console.log(`${newNews.length}개의 뉴스가 업데이트되었습니다.`);
+                console.log(`크립토 뉴스 ${this.cryptoNewsList.length}개, 일반 뉴스 ${this.generalNewsList.length}개가 업데이트되었습니다.`);
             } else {
                 // 뉴스가 없을 때
-                if (this.newsList.length === 0) {
+                if (this.cryptoNewsList.length === 0 && this.generalNewsList.length === 0) {
                     this.showNoNewsMessage();
                 } else {
                     this.displayNews();
@@ -90,46 +81,88 @@ class NewsManager {
 
     async fetchNewsFromCollector() {
         try {
-            // Flask API를 통해 뉴스 수집
+            // Flask API를 통해 카테고리별 뉴스 수집
             const response = await fetch('/api/news');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
             
-            if (data.success && data.news) {
-                return data.news;
+            if (data.success) {
+                return data;
             } else {
                 console.error('뉴스 API 응답 오류:', data);
-                return [];
+                return null;
             }
         } catch (error) {
             console.error('뉴스 수집기 호출 오류:', error);
-            return [];
+            return null;
         }
     }
 
     displayNews() {
-        const container = document.getElementById('newsContainer');
+        // 일반 뉴스 섹션 업데이트
+        this.displayGeneralNews();
         
-        if (this.newsList.length === 0) {
-            this.showNoNewsMessage();
+        // 암호화폐 뉴스 섹션 업데이트
+        this.displayCryptoNews();
+    }
+
+    displayGeneralNews() {
+        const container = document.getElementById('generalNewsContainer');
+        const generalNews = this.generalNewsList.slice(0, this.maxNewsCount);
+        
+        if (generalNews.length === 0) {
+            container.innerHTML = `
+                <div class="no-news-message">
+                    <i class="fas fa-newspaper"></i>
+                    <p>수집된 일반 뉴스가 없습니다.</p>
+                </div>
+            `;
             return;
         }
 
-        const newsHTML = this.newsList.map((news, index) => {
+        const newsHTML = generalNews.map((news, index) => {
             const timeAgo = this.getTimeAgo(news.published);
-            const isNew = index < 3; // 최신 3개는 새로운 뉴스로 표시
+            const isNew = index < 2; // 최신 2개는 새로운 뉴스로 표시
             
             return `
-                <div class="news-item ${isNew ? 'new' : ''}" onclick="newsManager.openNewsLink('${news.link}')">
+                <div class="news-item general ${isNew ? 'new' : ''}" onclick="newsManager.openNewsLink('${news.link}')">
                     <div class="news-header">
-                        <!-- 한글제목(번역제목) -->
                         <h3 class="news-title">${this.escapeHtml(news.translated_title || news.title)}</h3>
                         <span class="news-time">${timeAgo}</span>
                     </div>
-                    <!-- 영문제목(원본) -->
-                    <div class="news-original-title">${this.escapeHtml(news.title)}</div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = newsHTML;
+    }
+
+    displayCryptoNews() {
+        const container = document.getElementById('cryptoNewsContainer');
+        const cryptoNews = this.cryptoNewsList.slice(0, this.maxNewsCount);
+        
+        if (cryptoNews.length === 0) {
+            container.innerHTML = `
+                <div class="no-news-message">
+                    <i class="fab fa-bitcoin"></i>
+                    <p>수집된 암호화폐 뉴스가 없습니다.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const newsHTML = cryptoNews.map((news, index) => {
+            const timeAgo = this.getTimeAgo(news.published);
+            const isNew = index < 2; // 최신 2개는 새로운 뉴스로 표시
+            
+            return `
+                <div class="news-item crypto ${isNew ? 'new' : ''}" onclick="newsManager.openNewsLink('${news.link}')">
+                    <div class="news-header">
+                        <h3 class="news-title">${this.escapeHtml(news.translated_title || news.title)}</h3>
+                        <span class="news-time">${timeAgo}</span>
+                    </div>
                 </div>
             `;
         }).join('');
@@ -145,11 +178,30 @@ class NewsManager {
 
     getTimeAgo(published) {
         const now = new Date();
-        const newsTime = new Date(published);
-        const diffMs = now - newsTime;
-        const diffMins = Math.floor(diffMs / 60000);
         
+        // published는 서버에서 이미 한국시간으로 변환된 문자열
+        let newsTime;
+        if (typeof published === 'string') {
+            // "2025-10-29 00:30:57" 형식을 한국시간으로 파싱
+            const [datePart, timePart] = published.split(' ');
+            const [year, month, day] = datePart.split('-').map(Number);
+            const [hour, minute, second] = timePart.split(':').map(Number);
+            
+            // 한국시간으로 Date 객체 생성 (이미 한국시간임)
+            newsTime = new Date(year, month - 1, day, hour, minute, second);
+        } else {
+            newsTime = published;
+        }
+        
+        // 시간 차이 계산 (밀리초)
+        const diffMs = now - newsTime;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMins = Math.floor(diffSeconds / 60);
+        
+        // 1분 미만만 "방금"으로 표시
         if (diffMins < 1) return '방금';
+        
+        // 1분 이상은 "N분전"으로 표시
         if (diffMins < 60) return `${diffMins}분 전`;
         
         const diffHours = Math.floor(diffMins / 60);
@@ -166,40 +218,38 @@ class NewsManager {
     }
 
     showLoading(show) {
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        if (loadingIndicator) {
-            if (show) {
-                loadingIndicator.style.display = 'flex';
-            } else {
-                loadingIndicator.style.display = 'none';
-            }
+        // 일반 뉴스 로딩 인디케이터
+        const generalLoadingIndicator = document.getElementById('generalLoadingIndicator');
+        if (generalLoadingIndicator) {
+            generalLoadingIndicator.style.display = show ? 'flex' : 'none';
+        }
+        
+        // 암호화폐 뉴스 로딩 인디케이터
+        const cryptoLoadingIndicator = document.getElementById('cryptoLoadingIndicator');
+        if (cryptoLoadingIndicator) {
+            cryptoLoadingIndicator.style.display = show ? 'flex' : 'none';
         }
     }
 
-    showNoNewsMessage() {
-        const container = document.getElementById('newsContainer');
-        container.innerHTML = `
-            <div class="no-news-message">
-                <i class="fas fa-newspaper"></i>
-                <p>수집된 뉴스가 없습니다.</p>
-                <p>잠시 후 다시 시도해주세요.</p>
-            </div>
-        `;
-    }
-
     showErrorMessage() {
-        const container = document.getElementById('newsContainer');
-        container.innerHTML = `
+        const generalContainer = document.getElementById('generalNewsContainer');
+        const cryptoContainer = document.getElementById('cryptoNewsContainer');
+        
+        const errorMessage = `
             <div class="error-message">
                 <i class="fas fa-exclamation-triangle"></i>
                 <p>뉴스 수집 중 오류가 발생했습니다.</p>
                 <p>잠시 후 다시 시도해주세요.</p>
             </div>
         `;
+        
+        generalContainer.innerHTML = errorMessage;
+        cryptoContainer.innerHTML = errorMessage;
     }
 
     updateStats() {
-        document.getElementById('totalNews').textContent = this.newsList.length;
+        const totalCount = this.cryptoNewsList.length + this.generalNewsList.length;
+        document.getElementById('totalNews').textContent = totalCount;
         
         const now = new Date();
         const timeString = now.toLocaleTimeString('ko-KR', {
