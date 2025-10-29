@@ -53,37 +53,26 @@ class NewsManager {
             const newNews = await this.fetchNewsFromCollector();
             
             if (newNews && newNews.length > 0) {
-                // 새로운 뉴스만 필터링
-                const filteredNews = newNews.filter(news => !this.sentNewsLinks.has(news.link));
+                // 기존 뉴스 리스트 초기화하고 백엔드에서 받은 최신 뉴스로 교체
+                this.newsList = newNews;
                 
-                if (filteredNews.length > 0) {
-                    // 뉴스 리스트에 추가 (백엔드에서 이미 번역됨)
-                    filteredNews.forEach(news => {
-                        this.newsList.unshift(news);
-                        this.sentNewsLinks.add(news.link);
-                    });
-                    
-                    // 최대 개수 유지
-                    if (this.newsList.length > this.maxNewsCount) {
-                        this.newsList = this.newsList.slice(0, this.maxNewsCount);
-                    }
-                    
-                    // 화면 업데이트
-                    this.displayNews();
-                    this.updateStats();
-                    
-                    console.log(`${filteredNews.length}개의 새로운 뉴스가 추가되었습니다.`);
-                } else {
-                    // 기존 뉴스가 있으면 표시
-                    if (this.newsList.length > 0) {
-                        this.displayNews();
-                        this.updateStats();
-                    } else {
-                        this.showNoNewsMessage();
-                    }
+                // 중복 체크를 위한 링크 저장
+                newNews.forEach(news => {
+                    this.sentNewsLinks.add(news.link);
+                });
+                
+                // 최대 개수 유지
+                if (this.newsList.length > this.maxNewsCount) {
+                    this.newsList = this.newsList.slice(0, this.maxNewsCount);
                 }
+                
+                // 화면 업데이트
+                this.displayNews();
+                this.updateStats();
+                
+                console.log(`${newNews.length}개의 뉴스가 업데이트되었습니다.`);
             } else {
-                // 뉴스가 없을 때도 기존 뉴스 표시
+                // 뉴스가 없을 때
                 if (this.newsList.length === 0) {
                     this.showNoNewsMessage();
                 } else {
